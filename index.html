@@ -1,0 +1,1453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>AnnaData — Food Rescue Network</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+/* ═══════════════════════════════════════
+   RESET & BASE
+═══════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --forest:   #1C3D2E;
+  --leaf:     #2E7D52;
+  --mint:     #4CAF80;
+  --pale:     #EAF4EE;
+  --sand:     #F7F3EC;
+  --white:    #FFFFFF;
+  --ink:      #12201A;
+  --muted:    #526B5C;
+  --border:   #D4E4DA;
+  --amber:    #D4870F;
+  --amber-bg: #FEF4E0;
+  --red:      #C0441C;
+  --red-bg:   #FDF0EA;
+  --shadow:   0 2px 16px rgba(28,61,46,0.10);
+  --shadow-lg:0 8px 40px rgba(28,61,46,0.14);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--ink);
+  background: var(--white);
+}
+
+h1, h2, h3, h4 {
+  font-family: 'Fraunces', serif;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+a { color: var(--mint); text-decoration: none; }
+a:hover { text-decoration: underline; }
+img { max-width: 100%; display: block; }
+
+/* ═══════════════════════════════════════
+   NAV
+═══════════════════════════════════════ */
+nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--forest);
+  padding: 0 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+}
+
+.nav-logo {
+  font-family: 'Fraunces', serif;
+  font-size: 22px;
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+.nav-logo span { color: #74C69D; }
+.nav-logo-icon {
+  width: 34px; height: 34px;
+  background: var(--mint);
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  font-size: 17px;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  list-style: none;
+}
+
+.nav-links a {
+  color: rgba(255,255,255,0.75);
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 14px;
+  border-radius: 8px;
+  transition: all 0.18s;
+  text-decoration: none;
+}
+.nav-links a:hover { color: white; background: rgba(255,255,255,0.1); }
+
+.nav-cta {
+  background: var(--mint) !important;
+  color: white !important;
+  font-weight: 600 !important;
+  padding: 9px 18px !important;
+}
+.nav-cta:hover { background: #3d9e6a !important; }
+
+/* ═══════════════════════════════════════
+   HERO
+═══════════════════════════════════════ */
+.hero {
+  background: var(--forest);
+  padding: 90px 40px 80px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 70% 60% at 50% 100%, rgba(76,175,128,0.18) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero-eyebrow {
+  display: inline-block;
+  background: rgba(76,175,128,0.2);
+  color: #74C69D;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  padding: 6px 16px;
+  border-radius: 20px;
+  margin-bottom: 24px;
+  border: 1px solid rgba(76,175,128,0.3);
+}
+
+.hero h1 {
+  font-size: clamp(38px, 6vw, 68px);
+  color: var(--white);
+  max-width: 820px;
+  margin: 0 auto 24px;
+  font-weight: 700;
+}
+
+.hero h1 em {
+  font-style: italic;
+  color: #74C69D;
+}
+
+.hero-sub {
+  font-size: 18px;
+  color: rgba(255,255,255,0.7);
+  max-width: 560px;
+  margin: 0 auto 40px;
+  line-height: 1.7;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn-hero-primary {
+  background: var(--mint);
+  color: white;
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  padding: 15px 32px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+  display: inline-block;
+}
+.btn-hero-primary:hover {
+  background: #3d9e6a;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(76,175,128,0.4);
+  text-decoration: none;
+  color: white;
+}
+
+.btn-hero-secondary {
+  background: rgba(255,255,255,0.1);
+  color: white;
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  padding: 15px 32px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.2);
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+  display: inline-block;
+}
+.btn-hero-secondary:hover {
+  background: rgba(255,255,255,0.18);
+  text-decoration: none;
+  color: white;
+}
+
+.hero-stats {
+  display: flex;
+  justify-content: center;
+  gap: 60px;
+  margin-top: 64px;
+  padding-top: 40px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  flex-wrap: wrap;
+}
+
+.hero-stat-num {
+  font-family: 'Fraunces', serif;
+  font-size: 42px;
+  font-weight: 700;
+  color: white;
+  line-height: 1;
+}
+
+.hero-stat-label {
+  font-size: 13px;
+  color: rgba(255,255,255,0.55);
+  margin-top: 6px;
+}
+
+/* ═══════════════════════════════════════
+   PROBLEM STRIP
+═══════════════════════════════════════ */
+.problem-strip {
+  background: var(--red-bg);
+  border-top: 3px solid var(--red);
+  padding: 28px 40px;
+  text-align: center;
+}
+
+.problem-strip p {
+  font-size: 17px;
+  color: var(--ink);
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.problem-strip strong { color: var(--red); }
+
+/* ═══════════════════════════════════════
+   SECTION WRAPPER
+═══════════════════════════════════════ */
+.section {
+  padding: 80px 40px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.section-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--mint);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.section-title {
+  font-size: clamp(28px, 4vw, 42px);
+  color: var(--forest);
+  margin-bottom: 16px;
+}
+
+.section-sub {
+  font-size: 17px;
+  color: var(--muted);
+  max-width: 540px;
+  line-height: 1.7;
+}
+
+/* ═══════════════════════════════════════
+   HOW IT WORKS
+═══════════════════════════════════════ */
+#how { background: var(--sand); padding: 80px 0; }
+#how .section { max-width: 1100px; margin: 0 auto; padding: 0 40px; }
+
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+  margin-top: 48px;
+}
+
+.step-card {
+  background: var(--white);
+  border-radius: 16px;
+  padding: 32px;
+  border: 1px solid var(--border);
+  position: relative;
+}
+
+.step-num {
+  width: 48px; height: 48px;
+  background: var(--forest);
+  color: white;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  font-family: 'Fraunces', serif;
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.step-card h3 {
+  font-size: 20px;
+  color: var(--forest);
+  margin-bottom: 10px;
+}
+
+.step-card p {
+  font-size: 15px;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+/* ═══════════════════════════════════════
+   LISTINGS SECTION
+═══════════════════════════════════════ */
+#listings { background: var(--white); }
+
+.listings-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.listings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+.listing-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: var(--shadow);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.listing-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+}
+
+.lc-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.lc-icon {
+  width: 48px; height: 48px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+.lc-icon.cooked { background: var(--red-bg); }
+.lc-icon.packet { background: var(--amber-bg); }
+
+.lc-title { font-size: 16px; font-weight: 600; color: var(--ink); line-height: 1.3; }
+.lc-meta  { font-size: 13px; color: var(--muted); margin-top: 3px; }
+
+.badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 20px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.badge.cooked { background: var(--red-bg);   color: var(--red); }
+.badge.packet { background: var(--amber-bg); color: var(--amber); }
+
+.lc-divider { height: 1px; background: var(--border); margin: 14px 0; }
+
+.lc-info { display: flex; flex-direction: column; gap: 8px; }
+
+.lc-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--muted);
+}
+.lc-row span:first-child { font-size: 16px; width: 22px; flex-shrink: 0; }
+.lc-row strong { color: var(--ink); }
+
+.lc-dist {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--pale);
+  color: var(--leaf);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 6px;
+  margin-left: auto;
+}
+
+.timer-wrap { margin-top: 16px; }
+.timer-top {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  margin-bottom: 6px;
+}
+.timer-top span:first-child { color: var(--muted); }
+.timer-urgent { color: var(--red);   font-weight: 700; }
+.timer-mid    { color: var(--amber); font-weight: 700; }
+.timer-ok     { color: var(--mint);  font-weight: 700; }
+
+.progress {
+  height: 6px;
+  background: var(--border);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.progress-bar {
+  height: 100%;
+  border-radius: 99px;
+}
+.progress-bar.urgent { background: var(--red); }
+.progress-bar.mid    { background: var(--amber); }
+.progress-bar.ok     { background: var(--mint); }
+
+.btn-accept {
+  width: 100%;
+  margin-top: 18px;
+  padding: 12px;
+  background: var(--forest);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s;
+}
+.btn-accept:hover { background: var(--leaf); }
+.btn-accept:disabled { background: var(--mint); cursor: default; }
+
+/* Loading / empty states */
+.state-box {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--muted);
+}
+.spinner {
+  width: 36px; height: 36px;
+  border: 3px solid var(--border);
+  border-top-color: var(--mint);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 16px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ═══════════════════════════════════════
+   FORMS SECTION (two columns)
+═══════════════════════════════════════ */
+#forms { background: var(--sand); padding: 80px 0; }
+#forms .section { max-width: 1100px; margin: 0 auto; padding: 0 40px; }
+
+.forms-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  margin-top: 48px;
+}
+
+.form-panel {
+  background: var(--white);
+  border-radius: 20px;
+  padding: 36px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+
+.form-panel-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 28px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.form-panel-icon {
+  width: 50px; height: 50px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  font-size: 24px;
+}
+.form-panel-icon.green  { background: var(--pale); }
+.form-panel-icon.amber  { background: var(--amber-bg); }
+
+.form-panel-title { font-size: 22px; color: var(--forest); }
+.form-panel-sub   { font-size: 14px; color: var(--muted); margin-top: 2px; }
+
+.field { margin-bottom: 18px; }
+
+.field label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 7px;
+}
+
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: var(--ink);
+  background: var(--white);
+  outline: none;
+  transition: border-color 0.2s;
+  resize: vertical;
+}
+.field input:focus,
+.field select:focus,
+.field textarea:focus { border-color: var(--mint); }
+
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+.food-type-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.ftype-btn {
+  padding: 12px;
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  background: var(--white);
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.18s;
+  font-family: 'Inter', sans-serif;
+}
+.ftype-btn.active {
+  border-color: var(--mint);
+  background: var(--pale);
+}
+.ftype-btn .ftype-icon  { font-size: 24px; }
+.ftype-btn .ftype-label { font-size: 13px; font-weight: 600; color: var(--muted); margin-top: 4px; }
+.ftype-btn.active .ftype-label { color: var(--leaf); }
+
+.expiry-info {
+  font-size: 13px;
+  padding: 11px 14px;
+  border-radius: 10px;
+  margin-bottom: 18px;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+.expiry-info.cooked { background: var(--red-bg); color: var(--red); border: 1px solid #f5c5b0; }
+.expiry-info.packet { background: var(--amber-bg); color: var(--amber); border: 1px solid #f5dfa0; }
+
+.loc-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  margin-bottom: 18px;
+  background: var(--sand);
+  font-size: 13px;
+}
+.loc-text { flex: 1; color: var(--muted); }
+.loc-text.got { color: var(--mint); font-weight: 600; }
+.loc-btn {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--leaf);
+  background: var(--pale);
+  border: 1px solid var(--mint);
+  border-radius: 7px;
+  padding: 6px 13px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.18s;
+}
+.loc-btn:hover { background: #d4ead9; }
+
+.btn-submit {
+  width: 100%;
+  padding: 14px;
+  background: var(--forest);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 4px;
+}
+.btn-submit:hover {
+  background: var(--leaf);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(28,61,46,0.25);
+}
+.btn-submit:disabled { background: var(--mint); cursor: not-allowed; transform: none; }
+
+/* ═══════════════════════════════════════
+   IMPACT SECTION
+═══════════════════════════════════════ */
+#impact {
+  background: var(--forest);
+  padding: 80px 40px;
+  text-align: center;
+}
+
+#impact .section-title { color: white; margin-bottom: 12px; }
+#impact .section-sub   { color: rgba(255,255,255,0.65); margin: 0 auto 56px; }
+
+.impact-grid {
+  display: flex;
+  justify-content: center;
+  gap: 80px;
+  flex-wrap: wrap;
+}
+
+.impact-num {
+  font-family: 'Fraunces', serif;
+  font-size: 56px;
+  font-weight: 700;
+  color: #74C69D;
+  line-height: 1;
+}
+.impact-label {
+  font-size: 15px;
+  color: rgba(255,255,255,0.6);
+  margin-top: 8px;
+}
+
+/* ═══════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════ */
+footer {
+  background: #0F2419;
+  padding: 40px;
+  text-align: center;
+  color: rgba(255,255,255,0.4);
+  font-size: 14px;
+}
+footer strong { color: rgba(255,255,255,0.7); }
+
+/* ═══════════════════════════════════════
+   TOAST NOTIFICATION
+═══════════════════════════════════════ */
+#toast {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--forest);
+  color: white;
+  padding: 14px 28px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: var(--shadow-lg);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s ease;
+  z-index: 999;
+  white-space: nowrap;
+}
+#toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+#toast.success { background: var(--leaf); }
+#toast.error   { background: var(--red); }
+
+/* ═══════════════════════════════════════
+   MODAL
+═══════════════════════════════════════ */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(12,24,18,0.65);
+  backdrop-filter: blur(4px);
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+
+.modal-box {
+  background: var(--white);
+  border-radius: 20px;
+  padding: 36px;
+  max-width: 480px;
+  width: 100%;
+  box-shadow: var(--shadow-lg);
+  transform: scale(0.96);
+  transition: transform 0.25s;
+}
+.modal-overlay.open .modal-box { transform: scale(1); }
+
+.modal-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+.modal-title { font-size: 24px; color: var(--forest); }
+.modal-close {
+  width: 34px; height: 34px;
+  border: none;
+  background: var(--sand);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 18px;
+  color: var(--muted);
+  display: grid;
+  place-items: center;
+  transition: background 0.18s;
+}
+.modal-close:hover { background: var(--border); }
+
+/* ═══════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════ */
+@media (max-width: 860px) {
+  nav { padding: 0 20px; }
+  .nav-links { display: none; }
+  .hero { padding: 60px 20px; }
+  .hero-stats { gap: 32px; }
+  .section { padding: 60px 20px; }
+  #how .section, #forms .section { padding: 0 20px; }
+  .steps-grid { grid-template-columns: 1fr; }
+  .forms-grid { grid-template-columns: 1fr; }
+  .listings-header { flex-direction: column; align-items: flex-start; }
+  .impact-grid { gap: 40px; }
+  #impact { padding: 60px 20px; }
+  footer { padding: 30px 20px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ NAV ═══════════════ -->
+<nav>
+  <a href="#" class="nav-logo">
+    <div class="nav-logo-icon">🌾</div>
+    Anna<span>Data</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#how">How it works</a></li>
+    <li><a href="#listings">Live listings</a></li>
+    <li><a href="#forms">Post food</a></li>
+    <li><a href="#forms" class="nav-cta">Register shelter</a></li>
+  </ul>
+</nav>
+
+<!-- ═══════════════ HERO ═══════════════ -->
+<section class="hero">
+  <div class="hero-eyebrow">Food Rescue Network — Jaipur</div>
+  <h1>Good food shouldn't end up<br><em>in a dustbin</em></h1>
+  <p class="hero-sub">Weddings, hotels, and canteens waste tonnes of cooked food every night. Shelters nearby go hungry. AnnaData connects the two — in minutes, not hours.</p>
+  <div class="hero-actions">
+    <a href="#forms" class="btn-hero-primary">Post surplus food</a>
+    <a href="#listings" class="btn-hero-secondary">See live listings</a>
+  </div>
+  <div class="hero-stats">
+    <div>
+      <div class="hero-stat-num" id="hero-meals">—</div>
+      <div class="hero-stat-label">Meals rescued this month</div>
+    </div>
+    <div>
+      <div class="hero-stat-num" id="hero-ngos">—</div>
+      <div class="hero-stat-label">Shelters registered</div>
+    </div>
+    <div>
+      <div class="hero-stat-num">20 km</div>
+      <div class="hero-stat-label">Alert radius</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ PROBLEM STRIP ═══════════════ -->
+<div class="problem-strip">
+  <p>At 11 PM a wedding ends in Jaipur. The caterer has <strong>food for 100 people left over</strong>. Ten minutes away, a shelter has people who slept hungry that night. The food went in the dustbin — because nobody could connect them fast enough.</p>
+</div>
+
+<!-- ═══════════════ HOW IT WORKS ═══════════════ -->
+<div id="how">
+  <div class="section">
+    <div class="section-label">The process</div>
+    <h2 class="section-title">From kitchen to shelter in under an hour</h2>
+    <p class="section-sub">Three steps. No app to download. Works on any phone or computer.</p>
+
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-num">1</div>
+        <h3>Post your surplus</h3>
+        <p>Caterer, hotel, hostel — fill a simple form. Tell us what food you have, how many it feeds, and where you are. Takes 60 seconds.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">2</div>
+        <h3>NGOs get alerted instantly</h3>
+        <p>Every registered shelter within 20 km receives an email notification with your location, food details, and how much time is left.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">3</div>
+        <h3>Food reaches people</h3>
+        <p>A shelter accepts and comes to collect. Cooked food listings expire after 12 hours for safety. Packed food stays live for 30 days.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ LIVE LISTINGS ═══════════════ -->
+<section id="listings">
+  <div class="section">
+    <div class="listings-header">
+      <div>
+        <div class="section-label">Right now</div>
+        <h2 class="section-title">Food available near Jaipur</h2>
+        <p class="section-sub" id="listings-sub">Loading active listings…</p>
+      </div>
+      <button onclick="loadListings()" style="font-family:Inter,sans-serif;font-size:14px;font-weight:600;color:var(--leaf);background:var(--pale);border:1px solid var(--mint);border-radius:9px;padding:10px 20px;cursor:pointer;">↻ Refresh</button>
+    </div>
+
+    <div class="listings-grid" id="listings-grid">
+      <div class="state-box">
+        <div class="spinner"></div>
+        <p>Finding food near you…</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ FORMS ═══════════════ -->
+<div id="forms">
+  <div class="section">
+    <div class="section-label">Get involved</div>
+    <h2 class="section-title">Post food or register your shelter</h2>
+    <p class="section-sub">Both forms take under two minutes.</p>
+
+    <div class="forms-grid">
+
+      <!-- GIVE FOOD FORM -->
+      <div class="form-panel">
+        <div class="form-panel-header">
+          <div class="form-panel-icon green">🍱</div>
+          <div>
+            <div class="form-panel-title">Post surplus food</div>
+            <div class="form-panel-sub">For caterers, hotels, hostels, canteens</div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="g-name">Your name / organisation</label>
+          <input id="g-name" type="text" placeholder="e.g. Ramesh Caterers"/>
+        </div>
+
+        <div class="field">
+          <label for="g-phone">Contact number</label>
+          <input id="g-phone" type="tel" placeholder="e.g. 9876543210"/>
+        </div>
+
+        <div class="field">
+          <label for="g-desc">What food do you have?</label>
+          <input id="g-desc" type="text" placeholder="e.g. Dal makhani, rice, roti — 80 portions"/>
+        </div>
+
+        <div class="field">
+          <label for="g-qty">Approx. how many people can it feed?</label>
+          <input id="g-qty" type="number" placeholder="e.g. 80" min="1"/>
+        </div>
+
+        <div>
+          <label style="display:block;font-size:13px;font-weight:600;color:var(--ink);margin-bottom:7px;">Food type</label>
+          <div class="food-type-toggle">
+            <button class="ftype-btn active" id="ft-cooked" onclick="setFoodType('cooked')">
+              <div class="ftype-icon">🍛</div>
+              <div class="ftype-label">Cooked</div>
+            </button>
+            <button class="ftype-btn" id="ft-packet" onclick="setFoodType('packet')">
+              <div class="ftype-icon">📦</div>
+              <div class="ftype-label">Packed</div>
+            </button>
+          </div>
+        </div>
+
+        <div class="expiry-info cooked" id="expiry-info">
+          <span>⏱</span>
+          <span><strong>Cooked food</strong> — listing active for 12 hours, then auto-expires for safety.</span>
+        </div>
+
+        <div class="field">
+          <label for="g-notes">Pickup notes (optional)</label>
+          <input id="g-notes" type="text" placeholder="e.g. Gate 2, call before coming"/>
+        </div>
+
+        <div class="loc-row">
+          <span>📍</span>
+          <span class="loc-text" id="g-loc-text">Click to get your current location</span>
+          <button class="loc-btn" onclick="getGiverLocation()">Get location</button>
+        </div>
+        <input type="hidden" id="g-lat"/>
+        <input type="hidden" id="g-lng"/>
+
+        <button class="btn-submit" id="btn-give" onclick="submitFood()">Post food now</button>
+      </div>
+
+      <!-- NGO REGISTER FORM -->
+      <div class="form-panel">
+        <div class="form-panel-header">
+          <div class="form-panel-icon amber">🏠</div>
+          <div>
+            <div class="form-panel-title">Register your shelter</div>
+            <div class="form-panel-sub">Get instant alerts for food within 20 km</div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="n-org">Organisation name</label>
+          <input id="n-org" type="text" placeholder="e.g. Jeevan Jyoti Trust"/>
+        </div>
+
+        <div class="field-row">
+          <div class="field" style="margin-bottom:0">
+            <label for="n-contact">Contact person</label>
+            <input id="n-contact" type="text" placeholder="e.g. Sita Devi"/>
+          </div>
+          <div class="field" style="margin-bottom:0">
+            <label for="n-phone">Phone number</label>
+            <input id="n-phone" type="tel" placeholder="e.g. 9876543210"/>
+          </div>
+        </div>
+
+        <div class="field" style="margin-top:18px">
+          <label for="n-email">Email address (for food alerts)</label>
+          <input id="n-email" type="email" placeholder="e.g. shelter@example.org"/>
+        </div>
+
+        <div class="field">
+          <label for="n-capacity">How many people does your shelter serve?</label>
+          <input id="n-capacity" type="number" placeholder="e.g. 80" min="1"/>
+        </div>
+
+        <div class="field">
+          <label for="n-transport">Do you have transport for pickup?</label>
+          <select id="n-transport">
+            <option value="yes">Yes — we can send someone</option>
+            <option value="no">No — we need help with pickup</option>
+          </select>
+        </div>
+
+        <div class="loc-row">
+          <span>📍</span>
+          <span class="loc-text" id="n-loc-text">Click to set your shelter location</span>
+          <button class="loc-btn" onclick="getNGOLocation()">Get location</button>
+        </div>
+        <input type="hidden" id="n-lat"/>
+        <input type="hidden" id="n-lng"/>
+
+        <button class="btn-submit" id="btn-ngo" onclick="submitNGO()">Register shelter</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ IMPACT ═══════════════ -->
+<section id="impact">
+  <h2 class="section-title">Every meal counts</h2>
+  <p class="section-sub">India wastes 68 million tonnes of food every year while 194 million people go hungry. AnnaData starts fixing this — one pickup at a time.</p>
+  <div class="impact-grid">
+    <div>
+      <div class="impact-num" id="imp-meals">680+</div>
+      <div class="impact-label">Meals rescued</div>
+    </div>
+    <div>
+      <div class="impact-num" id="imp-donors">40+</div>
+      <div class="impact-label">Active donors</div>
+    </div>
+    <div>
+      <div class="impact-num" id="imp-ngos">12</div>
+      <div class="impact-label">Shelters registered</div>
+    </div>
+    <div>
+      <div class="impact-num">20 km</div>
+      <div class="impact-label">Alert radius</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ FOOTER ═══════════════ -->
+<footer>
+  <p><strong>AnnaData 🌾</strong> — Food Rescue Network, Jaipur</p>
+  <p style="margin-top:6px">Connecting surplus food with people who need it. Every night.</p>
+</footer>
+
+<!-- ═══════════════ TOAST ═══════════════ -->
+<div id="toast"></div>
+
+<!-- ═══════════════ ACCEPT MODAL ═══════════════ -->
+<div class="modal-overlay" id="accept-modal">
+  <div class="modal-box">
+    <div class="modal-top">
+      <h3 class="modal-title">Accept this food</h3>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <p style="font-size:14px;color:var(--muted);margin-bottom:20px;">Enter your shelter details so the donor knows who is coming.</p>
+    <div class="field">
+      <label for="m-ngo">Your shelter / organisation name</label>
+      <input id="m-ngo" type="text" placeholder="e.g. Jeevan Jyoti Trust"/>
+    </div>
+    <div class="field">
+      <label for="m-phone">Contact number</label>
+      <input id="m-phone" type="tel" placeholder="e.g. 9876543210"/>
+    </div>
+    <input type="hidden" id="m-listing-id"/>
+    <button class="btn-submit" onclick="confirmAccept()">Confirm — I will collect this food</button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+//  CONFIG — paste your Apps Script Web App URL here
+// ═══════════════════════════════════════════════════
+const API = "https://script.google.com/macros/s/AKfycbyj5r5qzOfYY0_CdTlnFtW9QU9ZTCCjIrhNEKsWl5bYGqdQ_KvH_FVCXKTMzepIttitMQ/exec";
+
+// ═══════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════
+let foodType = "cooked";
+let giverLat = null, giverLng = null;
+let ngoLat   = null, ngoLng   = null;
+
+// ═══════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════
+document.addEventListener("DOMContentLoaded", function() {
+  loadListings();
+  loadStats();
+
+  // Close modal when clicking backdrop
+  document.getElementById("accept-modal").addEventListener("click", function(e) {
+    if (e.target === this) closeModal();
+  });
+});
+
+// ═══════════════════════════════════════════════════
+//  TOAST
+// ═══════════════════════════════════════════════════
+var toastTimer;
+function toast(msg, type) {
+  var el = document.getElementById("toast");
+  el.textContent = msg;
+  el.className = "show" + (type ? " " + type : "");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function() { el.className = ""; }, 3500);
+}
+
+// ═══════════════════════════════════════════════════
+//  FOOD TYPE TOGGLE
+// ═══════════════════════════════════════════════════
+function setFoodType(type) {
+  foodType = type;
+  document.getElementById("ft-cooked").classList.toggle("active", type === "cooked");
+  document.getElementById("ft-packet").classList.toggle("active", type === "packet");
+
+  var info = document.getElementById("expiry-info");
+  if (type === "packet") {
+    info.className = "expiry-info packet";
+    info.innerHTML = "<span>📦</span><span><strong>Packed food</strong> — listing stays active for <strong>30 days</strong>. Great for shelf-stable items.</span>";
+  } else {
+    info.className = "expiry-info cooked";
+    info.innerHTML = "<span>⏱</span><span><strong>Cooked food</strong> — listing active for <strong>12 hours</strong>, then auto-expires for safety.</span>";
+  }
+}
+
+// ═══════════════════════════════════════════════════
+//  GEOLOCATION
+// ═══════════════════════════════════════════════════
+function getGiverLocation() {
+  var el = document.getElementById("g-loc-text");
+  el.textContent = "Getting location…";
+  if (!navigator.geolocation) { el.textContent = "Location not supported"; return; }
+  navigator.geolocation.getCurrentPosition(
+    function(pos) {
+      giverLat = pos.coords.latitude;
+      giverLng = pos.coords.longitude;
+      document.getElementById("g-lat").value = giverLat;
+      document.getElementById("g-lng").value = giverLng;
+      el.textContent = "✓ Location set (" + giverLat.toFixed(4) + ", " + giverLng.toFixed(4) + ")";
+      el.className = "loc-text got";
+    },
+    function() { el.textContent = "Could not get location — try again"; }
+  );
+}
+
+function getNGOLocation() {
+  var el = document.getElementById("n-loc-text");
+  el.textContent = "Getting location…";
+  if (!navigator.geolocation) { el.textContent = "Location not supported"; return; }
+  navigator.geolocation.getCurrentPosition(
+    function(pos) {
+      ngoLat = pos.coords.latitude;
+      ngoLng = pos.coords.longitude;
+      document.getElementById("n-lat").value = ngoLat;
+      document.getElementById("n-lng").value = ngoLng;
+      el.textContent = "✓ Location set (" + ngoLat.toFixed(4) + ", " + ngoLng.toFixed(4) + ")";
+      el.className = "loc-text got";
+    },
+    function() { el.textContent = "Could not get location — try again"; }
+  );
+}
+
+// ═══════════════════════════════════════════════════
+//  SUBMIT FOOD
+// ═══════════════════════════════════════════════════
+function submitFood() {
+  var name  = document.getElementById("g-name").value.trim();
+  var phone = document.getElementById("g-phone").value.trim();
+  var desc  = document.getElementById("g-desc").value.trim();
+  var qty   = document.getElementById("g-qty").value.trim();
+  var notes = document.getElementById("g-notes").value.trim();
+  var lat   = document.getElementById("g-lat").value;
+  var lng   = document.getElementById("g-lng").value;
+
+  if (!name)  { toast("Please enter your name or organisation.", "error"); return; }
+  if (!phone) { toast("Please enter a contact number.", "error"); return; }
+  if (!desc)  { toast("Please describe the food.", "error"); return; }
+  if (!qty)   { toast("Please enter how many people it can feed.", "error"); return; }
+  if (!lat || !lng) { toast("Please get your location first.", "error"); return; }
+
+  var btn = document.getElementById("btn-give");
+  btn.textContent = "Posting…";
+  btn.disabled = true;
+
+  callAPI({
+    action:   "postFood",
+    name:     name,
+    phone:    phone,
+    foodDesc: desc,
+    quantity: parseInt(qty),
+    foodType: foodType,
+    lat:      parseFloat(lat),
+    lng:      parseFloat(lng),
+    notes:    notes
+  }, function(data) {
+    if (data.success) {
+      toast("✓ Posted! Nearby shelters have been notified.", "success");
+      document.getElementById("g-name").value  = "";
+      document.getElementById("g-phone").value = "";
+      document.getElementById("g-desc").value  = "";
+      document.getElementById("g-qty").value   = "";
+      document.getElementById("g-notes").value = "";
+      document.getElementById("g-lat").value   = "";
+      document.getElementById("g-lng").value   = "";
+      document.getElementById("g-loc-text").textContent = "Click to get your current location";
+      document.getElementById("g-loc-text").className = "loc-text";
+      giverLat = null; giverLng = null;
+      loadListings();
+    } else {
+      toast(data.error || "Something went wrong. Try again.", "error");
+    }
+    btn.textContent = "Post food now";
+    btn.disabled = false;
+  });
+}
+
+// ═══════════════════════════════════════════════════
+//  SUBMIT NGO
+// ═══════════════════════════════════════════════════
+function submitNGO() {
+  var org      = document.getElementById("n-org").value.trim();
+  var contact  = document.getElementById("n-contact").value.trim();
+  var phone    = document.getElementById("n-phone").value.trim();
+  var email    = document.getElementById("n-email").value.trim();
+  var capacity = document.getElementById("n-capacity").value.trim();
+  var transport= document.getElementById("n-transport").value;
+  var lat      = document.getElementById("n-lat").value;
+  var lng      = document.getElementById("n-lng").value;
+
+  if (!org)      { toast("Please enter your organisation name.", "error"); return; }
+  if (!phone)    { toast("Please enter a phone number.", "error"); return; }
+  if (!email)    { toast("Please enter your email address.", "error"); return; }
+  if (!capacity) { toast("Please enter your shelter capacity.", "error"); return; }
+  if (!lat || !lng) { toast("Please get your shelter location first.", "error"); return; }
+
+  var btn = document.getElementById("btn-ngo");
+  btn.textContent = "Registering…";
+  btn.disabled = true;
+
+  callAPI({
+    action:        "registerNGO",
+    orgName:       org,
+    contactPerson: contact,
+    phone:         phone,
+    email:         email,
+    capacity:      parseInt(capacity),
+    lat:           parseFloat(lat),
+    lng:           parseFloat(lng),
+    hasTransport:  transport
+  }, function(data) {
+    if (data.success) {
+      toast("✓ Shelter registered! You will now receive food alerts.", "success");
+      document.getElementById("n-org").value      = "";
+      document.getElementById("n-contact").value  = "";
+      document.getElementById("n-phone").value    = "";
+      document.getElementById("n-email").value    = "";
+      document.getElementById("n-capacity").value = "";
+      document.getElementById("n-lat").value      = "";
+      document.getElementById("n-lng").value      = "";
+      document.getElementById("n-loc-text").textContent = "Click to set your shelter location";
+      document.getElementById("n-loc-text").className = "loc-text";
+      ngoLat = null; ngoLng = null;
+    } else {
+      toast(data.message || data.error || "Registration failed. Try again.", "error");
+    }
+    btn.textContent = "Register shelter";
+    btn.disabled = false;
+  });
+}
+
+// ═══════════════════════════════════════════════════
+//  LOAD LISTINGS
+// ═══════════════════════════════════════════════════
+function loadListings() {
+  var grid = document.getElementById("listings-grid");
+  grid.innerHTML = '<div class="state-box"><div class="spinner"></div><p>Finding food near you…</p></div>';
+
+  var lat = 26.9124, lng = 75.7873;
+
+  function fetchListings(lat, lng) {
+    callAPI({ action: "getListings", lat: lat, lng: lng }, function(data) {
+      if (data.listings && data.listings.length > 0) {
+        document.getElementById("listings-sub").textContent =
+          data.listings.length + " active listing" + (data.listings.length !== 1 ? "s" : "") + " within 20 km";
+        grid.innerHTML = data.listings.map(renderCard).join("");
+      } else if (data.success) {
+        document.getElementById("listings-sub").textContent = "No active listings right now";
+        grid.innerHTML = '<div class="state-box"><p style="font-size:32px;margin-bottom:12px">🍽️</p><p>No food available near you right now.<br>Check back soon — or post your own surplus above.</p></div>';
+      } else {
+        // Fallback demo
+        document.getElementById("listings-sub").textContent = "3 active listings within 20 km (demo)";
+        grid.innerHTML = DEMO_LISTINGS.map(renderCard).join("");
+      }
+    });
+  }
+
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      function(pos) { fetchListings(pos.coords.latitude, pos.coords.longitude); },
+      function()    { fetchListings(lat, lng); },
+      { timeout: 4000 }
+    );
+  } else {
+    fetchListings(lat, lng);
+  }
+}
+
+function renderCard(l) {
+  var isCooked  = l.foodType === "cooked";
+  var pct       = isCooked ? Math.max(5, Math.round((l.hoursLeft / 12) * 100)) : 90;
+  var fillClass = (isCooked && l.hoursLeft < 3) ? "urgent" : (isCooked ? "mid" : "ok");
+  var timeLabel = isCooked
+    ? (l.hoursLeft + "h " + l.minutesLeft + "m left")
+    : ((l.daysLeft || 28) + " days remaining");
+  var timeCls = fillClass === "urgent" ? "timer-urgent" : fillClass === "mid" ? "timer-mid" : "timer-ok";
+
+  return '<div class="listing-card">' +
+    '<div class="lc-top">' +
+      '<div class="lc-icon ' + (isCooked ? "cooked" : "packet") + '">' + (isCooked ? "🍛" : "📦") + '</div>' +
+      '<div style="flex:1">' +
+        '<div class="lc-title">' + esc(l.foodDesc || "Food available") + '</div>' +
+        '<div class="lc-meta">' + esc(l.name || "Donor") + ' · Posted recently</div>' +
+      '</div>' +
+      '<span class="badge ' + (isCooked ? "cooked" : "packet") + '">' + (isCooked ? "Cooked" : "Packed") + '</span>' +
+    '</div>' +
+    '<div class="lc-divider"></div>' +
+    '<div class="lc-info">' +
+      '<div class="lc-row"><span>👥</span><span>Enough for <strong>~' + esc(String(l.quantity)) + ' people</strong></span></div>' +
+      (l.notes ? '<div class="lc-row"><span>📝</span><span>' + esc(l.notes) + '</span></div>' : '') +
+      '<div class="lc-row"><span>📍</span><span><strong>' + l.distanceKm + ' km</strong> from your location</span><span class="lc-dist">📍 ' + l.distanceKm + ' km</span></div>' +
+    '</div>' +
+    '<div class="timer-wrap">' +
+      '<div class="timer-top">' +
+        '<span>' + (isCooked ? "Expires in" : "Valid for") + '</span>' +
+        '<span class="' + timeCls + '">' + timeLabel + '</span>' +
+      '</div>' +
+      '<div class="progress"><div class="progress-bar ' + fillClass + '" style="width:' + pct + '%"></div></div>' +
+    '</div>' +
+    '<button class="btn-accept" onclick="openAcceptModal(\'' + esc(l.id) + '\')">Accept &amp; collect this food</button>' +
+  '</div>';
+}
+
+// ═══════════════════════════════════════════════════
+//  ACCEPT MODAL
+// ═══════════════════════════════════════════════════
+function openAcceptModal(listingId) {
+  document.getElementById("m-listing-id").value = listingId;
+  document.getElementById("m-ngo").value   = "";
+  document.getElementById("m-phone").value = "";
+  document.getElementById("accept-modal").classList.add("open");
+}
+
+function closeModal() {
+  document.getElementById("accept-modal").classList.remove("open");
+}
+
+function confirmAccept() {
+  var ngo   = document.getElementById("m-ngo").value.trim();
+  var phone = document.getElementById("m-phone").value.trim();
+  var id    = document.getElementById("m-listing-id").value;
+
+  if (!ngo)   { toast("Please enter your shelter name.", "error"); return; }
+  if (!phone) { toast("Please enter your contact number.", "error"); return; }
+
+  var btn = document.querySelector("#accept-modal .btn-submit");
+  btn.textContent = "Confirming…";
+  btn.disabled = true;
+
+  callAPI({
+    action:    "acceptFood",
+    listingId: id,
+    ngoName:   ngo,
+    ngoPhone:  phone
+  }, function(data) {
+    if (data.success) {
+      toast("✓ Accepted! The donor has been notified. Go collect the food.", "success");
+      closeModal();
+      loadListings();
+    } else {
+      toast(data.message || "Could not accept. Try again.", "error");
+    }
+    btn.textContent = "Confirm — I will collect this food";
+    btn.disabled = false;
+  });
+}
+
+// ═══════════════════════════════════════════════════
+//  LOAD STATS for hero
+// ═══════════════════════════════════════════════════
+function loadStats() {
+  callAPI({ action: "getStats" }, function(data) {
+    if (data.meals)  document.getElementById("hero-meals").textContent = data.meals + "+";
+    if (data.ngos)   document.getElementById("hero-ngos").textContent  = data.ngos;
+    if (data.meals)  document.getElementById("imp-meals").textContent  = data.meals + "+";
+    if (data.ngos)   document.getElementById("imp-ngos").textContent   = data.ngos;
+    if (data.donors) document.getElementById("imp-donors").textContent = data.donors + "+";
+  });
+}
+
+// ═══════════════════════════════════════════════════
+//  API HELPER (fetch with no-cors fallback)
+// ═══════════════════════════════════════════════════
+function callAPI(payload, callback) {
+  var url = API;
+  var isGet = (payload.action === "getListings" || payload.action === "getStats");
+
+  if (isGet) {
+    var params = Object.keys(payload).map(function(k) {
+      return encodeURIComponent(k) + "=" + encodeURIComponent(payload[k]);
+    }).join("&");
+    url = API + "?" + params;
+
+    fetch(url)
+      .then(function(r) { return r.json(); })
+      .then(function(d) { callback(d); })
+      .catch(function()  { callback({}); });
+  } else {
+    fetch(url, {
+      method: "POST",
+      body:   JSON.stringify(payload)
+    })
+      .then(function(r) { return r.json(); })
+      .then(function(d) { callback(d); })
+      .catch(function()  { callback({ error: "Network error. Check your connection." }); });
+  }
+}
+
+// ═══════════════════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════════════════
+function esc(str) {
+  return String(str)
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+// ═══════════════════════════════════════════════════
+//  DEMO LISTINGS (shown if backend not connected)
+// ═══════════════════════════════════════════════════
+var DEMO_LISTINGS = [
+  { id:"F001", name:"Sharma Wedding Caterers", foodDesc:"Dal makhani, rice, paneer sabzi, rotis", quantity:100, foodType:"cooked", distanceKm:7.4, hoursLeft:2, minutesLeft:14, daysLeft:null, notes:"Gate 2, call before arriving" },
+  { id:"F002", name:"Hotel Clarks — Kitchen",  foodDesc:"Sealed biscuits, juice packs, bread loaves", quantity:40, foodType:"packet", distanceKm:11.2, hoursLeft:720, minutesLeft:0, daysLeft:28, notes:"" },
+  { id:"F003", name:"JNU Hostel Canteen",       foodDesc:"Khichdi, curd, pickle, fresh chapati", quantity:25, foodType:"cooked", distanceKm:18.3, hoursLeft:9, minutesLeft:20, daysLeft:null, notes:"Contact warden first" }
+];
+</script>
+</body>
+</html>
