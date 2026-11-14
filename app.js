@@ -1,480 +1,99 @@
-// ══════════════════════════════════════════════════════
-//  ANNADATA — app.js
-//  Paste your deployed Apps Script Web App URL below
-// ══════════════════════════════════════════════════════
+// 1) Paste your Google Apps Script web app URL here (see README).
+const API="https://script.google.com/macros/s/AKfycbw6CXXKzylhJ3wHJWTFXqCdf44i0ZkqYTBv82DxSsGcBF7sNH8rbQwKt9lqaNB4g42K/exec";
+const G=["A+","A-","B+","B-","AB+","AB-","O+","O-"];
+const CAN={"O-":["O-"],"O+":["O+","O-"],"A-":["A-","O-"],"A+":["A+","A-","O+","O-"],"B-":["B-","O-"],"B+":["B+","B-","O+","O-"],"AB-":["AB-","A-","B-","O-"],"AB+":G};
+const $=i=>document.getElementById(i);
+const el=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
+const q=p=>fetch(API+"?"+new URLSearchParams(p)).then(r=>r.json());
+const post=b=>fetch(API,{method:"POST",body:JSON.stringify(b)}).then(r=>r.json());
+let need="O-";
 
-const WEB_APP_URL = "YOUR_WEB_APP_URL_HERE";
-// Get this from: Apps Script → Deploy → Manage deployments → copy URL
+function tiles(){const t=$("tiles");t.innerHTML="";G.forEach(g=>{const b=el("button",0,g);b.type="button";b.setAttribute("aria-pressed",g===need);b.onclick=()=>{need=g;tiles()};t.appendChild(b)})}
+if($("g"))G.forEach(g=>{const o=el("option",0,g);o.value=g;$("g").appendChild(o)});
+if($("tiles"))tiles();
 
-// ── State ──
-let currentFoodType = "cooked";
-let userLat = null;
-let userLng = null;
-let ngoLat  = null;
-let ngoLng  = null;
+let pos=null;
+function locate(){return new Promise(ok=>{if(!navigator.geolocation)return ok(null);navigator.geolocation.getCurrentPosition(p=>{pos={lat:p.coords.latitude,lng:p.coords.longitude};ok(pos)},()=>ok(null),{timeout:10000,maximumAge:300000})})}
+async function search(){
+  const r=$("res");r.innerHTML="";
+  if(false){r.appendChild(el("div","note","Connect the site to your Google Sheet first. See README.md."));return}
+  $("go").disabled=true;r.appendChild(el("div","note","Searching..."));
+  try{
+    const groups=$("compat").checked?CAN[need]:[need];
+    const L=pos||await locate();
+    const list=await q(Object.assign({action:"search",groups:groups.join(","),city:$("city").value.trim()},L?{lat:L.lat,lng:L.lng}:{}));
+    r.innerHTML="";
+    if(!list.length){r.appendChild(el("div","note","No available donors found for "+need+(groups.length>1?" or compatible groups":"")+". Try a wider area, or post the request in your community while you contact the nearest blood bank."));return}
+    if(!L){list.sort((a,b)=>(b.group===need)-(a.group===need)||b.n-a.n);r.appendChild(el("div","sm","Location is off, so distances are not shown. Allow location access in your browser to see the nearest donors first."))}
+    let k=0;list.forEach(d=>{
+      const row=el("div","row"),i=el("div");row.style.animationDelay=(k++*70)+"ms";
+      i.append(el("div","nm",d.name),el("div","sm",(d.km!=null?d.km+" km away - ":"")+[d.area,d.city].filter(Boolean).join(", ")+(d.n?" - "+d.n+" donation"+(d.n>1?"s":""):"")));
+      if(d.group===need)i.firstChild.appendChild(el("span","pill","Exact match"));
+      const act=el("div","act"),b=el("button","btn alt","Contact");
+      b.onclick=async()=>{b.disabled=true;const x=await q({action:"contact",id:d.id});act.innerHTML="";
+        if(x.phone){const ph=String(x.phone).replace(/[^\d+]/g,""),c=el("a","btn","Call "+x.phone);c.href="tel:"+ph;
+          const w=el("a","btn alt","WhatsApp");w.style.marginLeft="8px";w.target="_blank";w.rel="noopener";
+          w.href="https://wa.me/"+ph.replace("+","")+"?text="+encodeURIComponent("Hello "+d.name+", I found you on RaktSetu. We urgently need "+need+" blood. Can you help?");act.append(c,w)}
+        else act.appendChild(el("span","sm",x.error||"Unavailable"))};
+      act.appendChild(b);row.append(el("div","grp",d.group),i,act);r.appendChild(row)});
+  }catch(e){r.innerHTML="";r.appendChild(el("div","note","Could not reach the server. Check your connection and try again."))}
+  $("go").disabled=false;
+}
+if($("go")){$("go").onclick=search;$("city").addEventListener("keydown",e=>{if(e.key==="Enter")search()})}
 
-// ── Init ──
-document.addEventListener("DOMContentLoaded", () => {
-  loadListings();
+function rankList(id,items,fn,empty){const o=$(id);o.innerHTML="";if(!items.length){o.appendChild(el("li","sm",empty));return}items.forEach((x,i)=>{o.appendChild(fn(x,i))})}
+async function boards(){
+  if(false)return;
+  try{
+    rankList("lb",await q({action:"board"}),(d,i)=>{const l=el("li");const s=el("div");s.append(el("div","nm",d.name),el("div","sm",d.group+", "+d.city));l.append(el("span","rk",i+1),s,el("span","ct",d.n));return l},"No donations recorded yet. Be the first.");
+    rankList("fd",await q({action:"feed"}),d=>{const l=el("li");const s=el("div");s.append(el("div","nm",d.donor+" donated blood"),el("div","sm","For "+d.recipient+" on "+d.date));l.append(s);return l},"Nothing yet.");
+  }catch(e){}
+}
+if($("lb"))boards();
+
+if($("reg")){
+function readFile(f){return new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok({name:f.name,type:f.type,data:r.result.split(",")[1]});r.onerror=no;r.readAsDataURL(f)})}
+function say(box,t,ok){box.className="msg "+(ok?"ok":"err");box.textContent=t}
+let mine=null;
+async function detect(){const s=$("ls");s.textContent="Detecting your location...";const L=await locate();
+  if(!L){s.textContent="Could not get your location. Allow location access in your browser, or register without it. You will then be listed after nearer donors.";return}
+  mine={lat:Math.round(L.lat*1000)/1000,lng:Math.round(L.lng*1000)/1000};s.textContent="Location captured.";
+  try{const a=(await fetch("https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=14&lat="+L.lat+"&lon="+L.lng).then(r=>r.json())).address||{};
+    if(!$("c").value)$("c").value=a.city||a.town||a.village||a.state_district||"";if(!$("a").value)$("a").value=a.suburb||a.neighbourhood||""}catch(e){}}
+$("loc").onclick=detect;
+let asked=false;$("reg").addEventListener("focusin",()=>{if(!asked&&!mine){asked=true;detect()}});
+$("reg").addEventListener("submit",async ev=>{
+  ev.preventDefault();const m=$("rm"),f=$("f").files[0];
+  if(false)return say(m,"Connect the site to your Google Sheet first. See README.md.");
+  if(!f)return say(m,"Please attach your blood group certificate.");
+  if(f.size>3e6)return say(m,"The certificate file is larger than 3 MB. Please attach a smaller photo or PDF.");
+  $("sub").disabled=true;m.className="msg hide";
+  try{
+    const r=await post({action:"register",name:$("n").value.trim(),email:$("e").value.trim(),phone:$("p").value.trim(),group:$("g").value,city:$("c").value.trim(),area:$("a").value.trim(),lat:mine&&mine.lat,lng:mine&&mine.lng,cert:await readFile(f)});
+    if(r.ok){say(m,"Almost done. Check your email and tap the confirmation link. Your profile goes live after we verify your certificate.",1);$("reg").reset()}
+    else say(m,r.error||"Something went wrong. Please try again.");
+  }catch(e){say(m,"Could not reach the server. Please try again.")}
+  $("sub").disabled=false;
 });
-
-// ════════════════════════════════════════════════════
-//  TAB & NAV SWITCHING
-// ════════════════════════════════════════════════════
-
-function switchTab(tab) {
-  ["ngo", "give", "notif"].forEach(t => {
-    const panel = document.getElementById("panel-" + t);
-    const btn   = document.getElementById("tab-" + t);
-    if (panel) panel.classList.toggle("active", t === tab);
-    if (btn)   btn.classList.toggle("active", t === tab);
-  });
-
-  const fab = document.getElementById("fab-post");
-  if (fab) fab.style.display = tab === "ngo" ? "flex" : "none";
 }
 
-function switchNav(navId, tab) {
-  document.querySelectorAll(".nav-item").forEach(el => el.classList.remove("active"));
-  document.getElementById("nav-" + navId).classList.add("active");
-  if (tab) switchTab(tab);
-}
+// Donor management page: opened from the link in the confirmation email (?manage=TOKEN)
+const tok=new URLSearchParams(location.search).get("manage");
+if($("manage")&&tok)(async()=>{
+  const box=$("manage"),p=box.firstChild,d=await q({action:"me",token:tok});box.classList.remove("hide");
+  if(d.error){p.appendChild(el("h2",0,"This link is not valid"));return}
+  p.append(el("h2",0,"Hello, "+d.name),el("p","sm",d.live?"Your profile is live. Donations recorded: "+d.n+".":"Your profile is not live yet. It appears after email confirmation and certificate approval."));
+  const f=el("div","f");f.style.marginTop="12px";
+  const r=el("div");r.innerHTML='<label for="rc">Who did you donate for? (optional)</label><input id="rc" placeholder="Patient name or hospital">';
+  const b=el("button","btn","I donated blood today"),t=el("button","btn alt",d.available?"Pause my profile":"Make me available"),m=el("div","msg hide");
+  b.onclick=async()=>{b.disabled=true;const x=await post({action:"donated",token:tok,recipient:r.querySelector("input").value.trim()});say(m,x.ok?"Thank you. You are hidden from search for 90 days and will reappear automatically.":x.error,x.ok)};
+  t.onclick=async()=>{const x=await post({action:"available",token:tok,value:t.textContent.startsWith("Make")});say(m,x.ok?"Updated. Reload to see the change.":x.error,x.ok)};
+  const lb=el("button","btn alt","Update my location");
+  lb.onclick=async()=>{const L=await locate();if(!L)return say(m,"Could not get your location. Allow location access and try again.");
+    const x=await post({action:"location",token:tok,lat:Math.round(L.lat*1000)/1000,lng:Math.round(L.lng*1000)/1000});say(m,x.ok?"Location updated.":x.error,x.ok)};
+  f.append(r,b,t,lb);p.append(f,m);box.scrollIntoView();
+})();
 
-function openNotifPanel() {
-  ["ngo", "give"].forEach(t => {
-    const p = document.getElementById("panel-" + t);
-    if (p) p.classList.remove("active");
-  });
-  const notif = document.getElementById("panel-notif");
-  if (notif) notif.classList.add("active");
-
-  const fab = document.getElementById("fab-post");
-  if (fab) fab.style.display = "none";
-}
-
-// ════════════════════════════════════════════════════
-//  MODAL
-// ════════════════════════════════════════════════════
-
-function openRegisterModal() {
-  document.getElementById("registerModal").classList.add("open");
-}
-
-function closeModal() {
-  document.getElementById("registerModal").classList.remove("open");
-}
-
-document.addEventListener("click", e => {
-  const overlay = document.getElementById("registerModal");
-  if (e.target === overlay) closeModal();
-});
-
-// ════════════════════════════════════════════════════
-//  FOOD TYPE TOGGLE
-// ════════════════════════════════════════════════════
-
-function selectFoodType(type) {
-  currentFoodType = type;
-  document.getElementById("ft-cooked").classList.toggle("selected", type === "cooked");
-  document.getElementById("ft-packet").classList.toggle("selected", type === "packet");
-
-  const hint = document.getElementById("expiry-hint");
-  if (type === "packet") {
-    hint.style.background = "var(--amber-soft)";
-    hint.style.borderColor = "#F0C97A";
-    hint.innerHTML = `<span class="hint-icon">📦</span>
-      <span><strong>Packed food:</strong> listing stays active for <strong>30 days</strong>. Great for shelf-stable items!</span>`;
-  } else {
-    hint.style.background = "var(--red-soft)";
-    hint.style.borderColor = "#F5C5A8";
-    hint.innerHTML = `<span class="hint-icon">⏱</span>
-      <span><strong>Cooked food:</strong> listing stays active for <strong>12 hours</strong>. Auto-expires for safety.</span>`;
-  }
-}
-
-// ════════════════════════════════════════════════════
-//  GEOLOCATION
-// ════════════════════════════════════════════════════
-
-function getLocation() {
-  const statusEl = document.getElementById("location-status");
-  statusEl.textContent = "Getting location…";
-
-  if (!navigator.geolocation) {
-    statusEl.textContent = "Location not supported on this browser";
-    return;
-  }
-
-  navigator.geolocation.getCurrentPosition(
-    pos => {
-      userLat = pos.coords.latitude;
-      userLng = pos.coords.longitude;
-      statusEl.textContent = `📍 Got it: ${userLat.toFixed(4)}, ${userLng.toFixed(4)}`;
-      statusEl.classList.add("got-location");
-      document.getElementById("food-lat").value = userLat;
-      document.getElementById("food-lng").value = userLng;
-    },
-    err => {
-      statusEl.textContent = "Could not get location. Try again.";
-      console.warn("Geolocation error:", err.message);
-    }
-  );
-}
-
-function getNGOLocation() {
-  const statusEl = document.getElementById("ngo-location-status");
-  statusEl.textContent = "Getting location…";
-
-  if (!navigator.geolocation) {
-    statusEl.textContent = "Location not supported on this browser";
-    return;
-  }
-
-  navigator.geolocation.getCurrentPosition(
-    pos => {
-      ngoLat = pos.coords.latitude;
-      ngoLng = pos.coords.longitude;
-      statusEl.textContent = `📍 Got it: ${ngoLat.toFixed(4)}, ${ngoLng.toFixed(4)}`;
-      statusEl.classList.add("got-location");
-      document.getElementById("ngo-lat").value = ngoLat;
-      document.getElementById("ngo-lng").value = ngoLng;
-    },
-    err => {
-      statusEl.textContent = "Could not get location. Try again.";
-    }
-  );
-}
-
-// ════════════════════════════════════════════════════
-//  SUBMIT FOOD LISTING
-// ════════════════════════════════════════════════════
-
-async function submitFood() {
-  const name     = document.getElementById("food-desc").value.trim();
-  const giverName= document.getElementById("giver-name").value.trim();
-  const qty      = document.getElementById("food-qty").value.trim();
-  const notes    = document.getElementById("food-notes").value.trim();
-  const lat      = document.getElementById("food-lat").value;
-  const lng      = document.getElementById("food-lng").value;
-
-  if (!giverName) { showToast("Please enter your name and contact."); return; }
-  if (!name)      { showToast("Please describe the food."); return; }
-  if (!qty)       { showToast("Please enter how many people it can feed."); return; }
-  if (!lat || !lng) { showToast("Please get your location first."); return; }
-
-  const btn = document.querySelector("#panel-give .btn-primary");
-  btn.textContent = "Posting…";
-  btn.disabled = true;
-
-  try {
-    const res = await fetch(WEB_APP_URL, {
-      method: "POST",
-      body: JSON.stringify({
-        action:    "postFood",
-        name:      giverName,
-        foodDesc:  name,
-        quantity:  qty,
-        foodType:  currentFoodType,
-        lat:       parseFloat(lat),
-        lng:       parseFloat(lng),
-        notes:     notes
-      })
-    });
-
-    const data = await res.json();
-
-    if (data.success) {
-      showToast("✅ Posted! Nearby NGOs notified.");
-      clearFoodForm();
-      loadListings();
-    } else {
-      showToast("Error: " + (data.error || "Something went wrong."));
-    }
-
-  } catch (err) {
-    console.error(err);
-    // Fallback demo mode if backend not connected yet
-    showToast("✅ Posted! (Demo mode — connect backend for live alerts)");
-    clearFoodForm();
-  } finally {
-    btn.textContent = "🌾 Post food now";
-    btn.disabled = false;
-  }
-}
-
-function clearFoodForm() {
-  document.getElementById("giver-name").value = "";
-  document.getElementById("food-desc").value  = "";
-  document.getElementById("food-qty").value   = "";
-  document.getElementById("food-notes").value = "";
-  document.getElementById("food-lat").value   = "";
-  document.getElementById("food-lng").value   = "";
-  document.getElementById("location-status").textContent = "Tap to get your location";
-  document.getElementById("location-status").classList.remove("got-location");
-}
-
-// ════════════════════════════════════════════════════
-//  SUBMIT NGO REGISTRATION
-// ════════════════════════════════════════════════════
-
-async function submitNGO() {
-  const orgName       = document.getElementById("ngo-name").value.trim();
-  const contactPerson = document.getElementById("ngo-contact").value.trim();
-  const phone         = document.getElementById("ngo-phone").value.trim();
-  const email         = document.getElementById("ngo-email").value.trim();
-  const capacity      = document.getElementById("ngo-capacity").value.trim();
-  const lat           = document.getElementById("ngo-lat").value;
-  const lng           = document.getElementById("ngo-lng").value;
-
-  if (!orgName)   { showToast("Please enter organisation name."); return; }
-  if (!phone)     { showToast("Please enter a phone number."); return; }
-  if (!email)     { showToast("Please enter an email address."); return; }
-  if (!capacity)  { showToast("Please enter shelter capacity."); return; }
-  if (!lat || !lng) { showToast("Please get your shelter location."); return; }
-
-  const btn = document.querySelector("#registerModal .btn-primary");
-  btn.textContent = "Registering…";
-  btn.disabled = true;
-
-  try {
-    const res = await fetch(WEB_APP_URL, {
-      method: "POST",
-      body: JSON.stringify({
-        action:        "registerNGO",
-        orgName,
-        contactPerson,
-        phone,
-        email,
-        capacity:      parseInt(capacity),
-        lat:           parseFloat(lat),
-        lng:           parseFloat(lng),
-        hasTransport:  "yes"
-      })
-    });
-
-    const data = await res.json();
-
-    if (data.success) {
-      showToast("🏠 Shelter registered! Alerts are now live.");
-      closeModal();
-    } else {
-      showToast(data.message || "Registration failed.");
-    }
-
-  } catch (err) {
-    console.error(err);
-    showToast("🏠 Registered! (Demo mode — connect backend for live alerts)");
-    closeModal();
-  } finally {
-    btn.textContent = "Register shelter →";
-    btn.disabled = false;
-  }
-}
-
-// ════════════════════════════════════════════════════
-//  LOAD LISTINGS (NGO tab)
-// ════════════════════════════════════════════════════
-
-async function loadListings() {
-  const container = document.getElementById("listings-container");
-  container.innerHTML = `
-    <div class="loading-state">
-      <div class="spinner"></div>
-      <p>Finding food near you…</p>
-    </div>`;
-
-  // Use device location if available, else default to Jaipur center
-  let lat = 26.9124, lng = 75.7873;
-  try {
-    const pos = await new Promise((res, rej) =>
-      navigator.geolocation.getCurrentPosition(res, rej, { timeout: 4000 })
-    );
-    lat = pos.coords.latitude;
-    lng = pos.coords.longitude;
-  } catch (_) {}
-
-  try {
-    const res  = await fetch(`${WEB_APP_URL}?action=getListings&lat=${lat}&lng=${lng}`);
-    const data = await res.json();
-    renderListings(data.listings || []);
-  } catch (_) {
-    // Demo fallback
-    renderListings(DEMO_LISTINGS);
-  }
-}
-
-function renderListings(listings) {
-  const container = document.getElementById("listings-container");
-  const count     = document.getElementById("listing-count");
-  const statActive= document.getElementById("stat-active");
-  const statDist  = document.getElementById("stat-dist");
-
-  if (!listings || listings.length === 0) {
-    container.innerHTML = `
-      <div class="empty-state">
-        <div class="empty-icon">🍽️</div>
-        <p>No food listings near you right now.<br>Check back soon or post your own surplus.</p>
-      </div>`;
-    count.textContent      = "0 active listings";
-    statActive.textContent = "0";
-    statDist.textContent   = "—";
-    document.getElementById("stat-meals").textContent = "—";
-    return;
-  }
-
-  count.textContent      = `${listings.length} active listing${listings.length !== 1 ? "s" : ""} right now`;
-  statActive.textContent = listings.length;
-  statDist.textContent   = listings[listings.length - 1].distanceKm + " km";
-  document.getElementById("stat-meals").textContent = listings.reduce((s, l) => s + (parseInt(l.quantity) || 0), 0);
-
-  container.innerHTML = listings.map(l => listingCard(l)).join("");
-}
-
-function listingCard(l) {
-  const isCooked  = l.foodType === "cooked";
-  const pct       = isCooked ? Math.max(5, Math.round((l.hoursLeft / 12) * 100)) : 90;
-  const fillClass = isCooked && l.hoursLeft < 3 ? "urgent" : isCooked ? "mid" : "ok";
-  const badgeClass= isCooked ? "badge--cooked" : "badge--packet";
-  const badgeText = isCooked ? "Cooked" : "Packed";
-  const iconClass = isCooked ? "card-icon--red" : "card-icon--amber";
-  const iconEmoji = isCooked ? "🍛" : "📦";
-
-  const timeLabel = isCooked
-    ? `${l.hoursLeft}h ${l.minutesLeft}m left`
-    : `${l.daysLeft !== undefined ? l.daysLeft : "28"} days remaining`;
-
-  const timeCls = fillClass === "urgent" ? "timer-value--urgent"
-                : fillClass === "mid"    ? "timer-value--mid"
-                : "timer-value--ok";
-
-  return `
-    <div class="listing-card">
-      <div class="card-header">
-        <div class="card-header-left">
-          <div class="card-icon ${iconClass}">${iconEmoji}</div>
-          <div>
-            <div class="card-title">${escHtml(l.foodDesc || "Food available")}</div>
-            <div class="card-meta">${escHtml(l.name || "Donor")} · ${l.distanceKm} km away · Posted recently</div>
-          </div>
-        </div>
-        <span class="badge ${badgeClass}">${badgeText}</span>
-      </div>
-
-      <div class="card-divider"></div>
-
-      <div class="info-row">
-        <span class="info-icon">👥</span>
-        <span class="info-text">Enough for <strong>~${escHtml(String(l.quantity))} people</strong></span>
-      </div>
-      ${l.notes ? `
-      <div class="info-row">
-        <span class="info-icon">📝</span>
-        <span class="info-text">${escHtml(l.notes)}</span>
-      </div>` : ""}
-      <div class="info-row">
-        <span class="info-icon">📍</span>
-        <span class="info-text"><strong>${l.distanceKm} km</strong> from your location</span>
-        <span class="distance-badge">📍 ${l.distanceKm} km</span>
-      </div>
-
-      <div class="timer-bar">
-        <div class="timer-label">
-          <span class="timer-label-left">⏱ ${isCooked ? "Expires in" : "Valid until"}</span>
-          <span class="timer-value ${timeCls}">${timeLabel}</span>
-        </div>
-        <div class="progress-track">
-          <div class="progress-fill progress-fill--${fillClass}" style="width:${pct}%"></div>
-        </div>
-      </div>
-
-      <button class="btn btn-accept" onclick="acceptListing('${escHtml(l.id)}', this)">Accept &amp; Get Directions</button>
-    </div>`;
-}
-
-// ════════════════════════════════════════════════════
-//  ACCEPT LISTING
-// ════════════════════════════════════════════════════
-
-async function acceptListing(listingId, btn) {
-  const ngoName  = prompt("Your NGO/shelter name:");
-  if (!ngoName) return;
-  const ngoPhone = prompt("Your contact number:");
-  if (!ngoPhone) return;
-
-  btn.textContent = "Accepting…";
-  btn.disabled    = true;
-
-  try {
-    const res  = await fetch(WEB_APP_URL, {
-      method: "POST",
-      body: JSON.stringify({
-        action:   "acceptFood",
-        listingId,
-        ngoName,
-        ngoPhone
-      })
-    });
-    const data = await res.json();
-
-    if (data.success) {
-      showToast("✅ Accepted! Donor has been notified.");
-      btn.textContent = "✅ Accepted";
-      btn.style.background = "#2D6A4F";
-    } else {
-      showToast(data.message || "Could not accept.");
-      btn.textContent = "Accept & Get Directions";
-      btn.disabled    = false;
-    }
-  } catch (_) {
-    showToast("✅ Accepted! (Demo mode)");
-    btn.textContent = "✅ Accepted";
-    btn.style.background = "#2D6A4F";
-  }
-}
-
-// ════════════════════════════════════════════════════
-//  TOAST
-// ════════════════════════════════════════════════════
-
-let toastTimer;
-function showToast(msg) {
-  const t = document.getElementById("toast");
-  t.textContent = msg;
-  t.classList.add("show");
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove("show"), 3200);
-}
-
-// ════════════════════════════════════════════════════
-//  HELPERS
-// ════════════════════════════════════════════════════
-
-function escHtml(str) {
-  return String(str)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
-
-// ════════════════════════════════════════════════════
-//  DEMO DATA (shown when backend not yet connected)
-// ════════════════════════════════════════════════════
-
-const DEMO_LISTINGS = [
-  {
-    id: "F001", name: "Sharma Wedding Caterers", foodDesc: "Dal makhani, rice, paneer sabzi, rotis",
-    quantity: 100, foodType: "cooked", distanceKm: 7.4,
-    hoursLeft: 2, minutesLeft: 14, daysLeft: null, notes: "Gate 2, call before arriving"
-  },
-  {
-    id: "F002", name: "Hotel Clarks — Kitchen", foodDesc: "Sealed biscuits, juice packs, bread loaves",
-    quantity: 40, foodType: "packet", distanceKm: 11.2,
-    hoursLeft: 720, minutesLeft: 0, daysLeft: 28, notes: ""
-  },
-  {
-    id: "F003", name: "JNU Hostel Canteen", foodDesc: "Khichdi, curd, pickle, chapati",
-    quantity: 25, foodType: "cooked", distanceKm: 18.3,
-    hoursLeft: 9, minutesLeft: 20, daysLeft: null, notes: "Contact warden first"
-  }
-];
+// scroll reveal for text and images
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}}),{threshold:.15});
+document.querySelectorAll(".rv").forEach(n=>io.observe(n));

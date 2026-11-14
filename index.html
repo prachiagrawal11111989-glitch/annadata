@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>AnnaData — Food Rescue Network</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ══ TOP BAR ══ -->
+  <header class="topbar">
+    <div class="logo-wrap">
+      <div class="logo-icon">🌾</div>
+      <div class="logo-text">Anna<span>Data</span></div>
+    </div>
+    <button class="notif-btn" onclick="openNotifPanel()" aria-label="Notifications">
+      🔔
+      <span class="notif-dot"></span>
+    </button>
+  </header>
+
+  <!-- ══ TAB BAR ══ -->
+  <nav class="tab-bar">
+    <button class="tab-btn active" id="tab-ngo" onclick="switchTab('ngo')">🏠 NGOs / Shelters</button>
+    <button class="tab-btn" id="tab-give" onclick="switchTab('give')">🍱 Food Givers</button>
+  </nav>
+
+  <!-- ══ TOAST ══ -->
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <!-- ════════════════════════════
+       NGO TAB
+  ════════════════════════════ -->
+  <main class="panel active" id="panel-ngo">
+
+    <div class="section-header">
+      <h1 class="section-title">Food available near you</h1>
+      <p class="section-sub">Within 20 km · <span id="listing-count">loading…</span></p>
+    </div>
+
+    <!-- Stats -->
+    <div class="stat-strip">
+      <div class="stat-box">
+        <div class="stat-num" id="stat-active">—</div>
+        <div class="stat-label">Active near you</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num" id="stat-meals">—</div>
+        <div class="stat-label">Meals rescued today</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num" id="stat-dist">—</div>
+        <div class="stat-label">Farthest listing</div>
+      </div>
+    </div>
+
+    <!-- Dynamic listings -->
+    <div id="listings-container">
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <p>Finding food near you…</p>
+      </div>
+    </div>
+
+    <!-- Register CTA -->
+    <div class="alert-card">
+      <h2 class="alert-title">Register your shelter</h2>
+      <p class="alert-sub">Get instant notifications for food within 20 km. We'll ping you the moment something is posted.</p>
+      <button class="alert-cta" onclick="openRegisterModal()">Register as NGO →</button>
+    </div>
+
+  </main>
+
+  <!-- ════════════════════════════
+       GIVE TAB
+  ════════════════════════════ -->
+  <main class="panel" id="panel-give">
+
+    <div class="section-header">
+      <h1 class="section-title">Share your surplus food</h1>
+      <p class="section-sub">Post in 60 seconds · Nearby NGOs get notified instantly</p>
+    </div>
+
+    <!-- How it works -->
+    <div class="how-card">
+      <p class="how-title">How it works</p>
+      <div class="how-row"><span class="how-num">1</span><span>Post what food you have and where you are</span></div>
+      <div class="how-row"><span class="how-num">2</span><span>We alert NGOs within <strong>20 km</strong> instantly</span></div>
+      <div class="how-row"><span class="how-num">3</span><span>An NGO accepts and comes to collect</span></div>
+      <div class="how-row"><span class="how-num">✓</span><span><strong>Your food feeds someone tonight</strong></span></div>
+    </div>
+
+    <!-- Post food form -->
+    <div class="card">
+      <h2 class="card-form-title">Post food now</h2>
+
+      <label class="form-label" for="giver-name">Your name &amp; contact</label>
+      <input class="form-input" id="giver-name" type="text" placeholder="e.g. Ramesh Caterers · 9876543210" />
+
+      <label class="form-label" for="food-desc">What food do you have?</label>
+      <input class="form-input" id="food-desc" type="text" placeholder="e.g. Dal makhani, rice, roti — 80 portions" />
+
+      <label class="form-label" for="food-qty">How many people can it feed?</label>
+      <input class="form-input" id="food-qty" type="number" placeholder="e.g. 80" min="1" />
+
+      <label class="form-label">Food type</label>
+      <div class="food-type-row">
+        <button class="food-type-btn selected" id="ft-cooked" onclick="selectFoodType('cooked')" type="button">
+          <span class="ft-icon">🍛</span>
+          <span class="ft-label">Cooked</span>
+        </button>
+        <button class="food-type-btn" id="ft-packet" onclick="selectFoodType('packet')" type="button">
+          <span class="ft-icon">📦</span>
+          <span class="ft-label">Packed</span>
+        </button>
+      </div>
+
+      <div class="expiry-hint" id="expiry-hint">
+        <span class="hint-icon">⏱</span>
+        <span><strong>Cooked food:</strong> listing stays active for <strong>12 hours</strong>. Auto-expires for safety.</span>
+      </div>
+
+      <label class="form-label" for="food-notes">Notes (optional)</label>
+      <input class="form-input" id="food-notes" type="text" placeholder="e.g. Gate 2, call before coming" />
+
+      <div class="location-row">
+        <span class="location-icon">📍</span>
+        <span id="location-status" class="location-text">Tap to get your location</span>
+        <button class="location-btn" onclick="getLocation()" type="button">Get location</button>
+      </div>
+      <input type="hidden" id="food-lat" />
+      <input type="hidden" id="food-lng" />
+
+      <button class="btn btn-primary" onclick="submitFood()" type="button">🌾 Post food now</button>
+    </div>
+
+    <!-- Impact stats -->
+    <div class="card impact-card">
+      <p class="impact-title">Your impact so far</p>
+      <div class="stat-strip">
+        <div class="stat-box">
+          <div class="stat-num">12</div>
+          <div class="stat-label">Donations made</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num">680</div>
+          <div class="stat-label">Meals rescued</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num">8</div>
+          <div class="stat-label">NGOs helped</div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ════════════════════════════
+       NOTIFICATIONS PANEL
+  ════════════════════════════ -->
+  <main class="panel" id="panel-notif">
+
+    <div class="section-header">
+      <h1 class="section-title">Notifications</h1>
+      <p class="section-sub">Live alerts for food near you</p>
+    </div>
+
+    <div class="notif-pill">
+      <div class="notif-pill-icon">🍛</div>
+      <div>
+        <div class="notif-pill-title">New cooked food 7.4 km away</div>
+        <div class="notif-pill-sub">Wedding catering · ~100 people · Mansarovar</div>
+        <div class="notif-pill-time">11 mins ago · Expires in 2 hrs</div>
+      </div>
+    </div>
+
+    <div class="notif-pill notif-pill--mid">
+      <div class="notif-pill-icon">📦</div>
+      <div>
+        <div class="notif-pill-title">Packed food 11.2 km away</div>
+        <div class="notif-pill-sub">Hotel buffet surplus · ~40 people · C-Scheme</div>
+        <div class="notif-pill-time">2 hrs ago · 28 days valid</div>
+      </div>
+    </div>
+
+    <div class="notif-pill notif-pill--dim">
+      <div class="notif-pill-icon">✅</div>
+      <div>
+        <div class="notif-pill-title">Your pickup was confirmed</div>
+        <div class="notif-pill-sub">Canteen food from JNU Hostel collected yesterday</div>
+        <div class="notif-pill-time">Yesterday · 55 meals rescued</div>
+      </div>
+    </div>
+
+    <button class="btn btn-outline" onclick="switchTab('ngo')" style="margin-top:12px">← Back to listings</button>
+
+  </main>
+
+  <!-- ════════════════════════════
+       REGISTER NGO MODAL
+  ════════════════════════════ -->
+  <div class="modal-overlay" id="registerModal" role="dialog" aria-modal="true" aria-label="Register shelter">
+    <div class="modal">
+      <div class="modal-handle"></div>
+      <button class="modal-close" onclick="closeModal()" aria-label="Close">✕</button>
+      <h2 class="modal-title">Register your shelter</h2>
+
+      <label class="form-label" for="ngo-name">Organisation name</label>
+      <input class="form-input" id="ngo-name" type="text" placeholder="e.g. Jeevan Jyoti Trust" />
+
+      <label class="form-label" for="ngo-contact">Contact person &amp; phone</label>
+      <input class="form-input" id="ngo-contact" type="text" placeholder="e.g. Sita Devi · 9876543210" />
+
+      <label class="form-label" for="ngo-phone">Phone number</label>
+      <input class="form-input" id="ngo-phone" type="tel" placeholder="e.g. 9876543210" />
+
+      <label class="form-label" for="ngo-email">Email address</label>
+      <input class="form-input" id="ngo-email" type="email" placeholder="e.g. shelter@example.org" />
+
+      <label class="form-label" for="ngo-capacity">How many people does your shelter serve?</label>
+      <input class="form-input" id="ngo-capacity" type="number" placeholder="e.g. 80" min="1" />
+
+      <div class="location-row">
+        <span class="location-icon">📍</span>
+        <span id="ngo-location-status" class="location-text">Tap to get shelter location</span>
+        <button class="location-btn" onclick="getNGOLocation()" type="button">Get location</button>
+      </div>
+      <input type="hidden" id="ngo-lat" />
+      <input type="hidden" id="ngo-lng" />
+
+      <button class="btn btn-primary" onclick="submitNGO()" style="margin-top:16px" type="button">Register shelter →</button>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════
+       FAB + BOTTOM NAV
+  ════════════════════════════ -->
+  <button class="fab" id="fab-post" onclick="switchTab('give')" aria-label="Post surplus food">
+    🍱 Post surplus food
+  </button>
+
+  <nav class="bottom-nav" aria-label="Main navigation">
+    <button class="nav-item active" id="nav-home" onclick="switchNav('home', 'ngo')">
+      <span class="nav-icon">🏠</span>
+      <span class="nav-label">Home</span>
+    </button>
+    <button class="nav-item" id="nav-map" onclick="showToast('Map view coming soon!')">
+      <span class="nav-icon">🗺️</span>
+      <span class="nav-label">Map</span>
+    </button>
+    <button class="nav-item" id="nav-history" onclick="showToast('Rescue history coming soon!')">
+      <span class="nav-icon">📋</span>
+      <span class="nav-label">History</span>
+    </button>
+    <button class="nav-item" id="nav-profile" onclick="showToast('Profile coming soon!')">
+      <span class="nav-icon">👤</span>
+      <span class="nav-label">Profile</span>
+    </button>
+  </nav>
+
+  <script src="app.js"></script>
+</body>
+</html>
